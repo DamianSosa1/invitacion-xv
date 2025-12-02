@@ -31,7 +31,7 @@ export default function BirthdayInvitation() {
     time: "21:00 horas",
     location: "Corrientes 1198, Rosario, Santa Fe",
     details: "¡Trae tu mejor sonrisa y ganas de bailar!",
-    mercadoPago: "agustina.xv@gmail.com",
+    mercadoPago: "agustinaxv.cumple.mp",
     dressCode: "Formal - Elegante y sofisticado",
     closingMessage: "¡Espero verte en este día tan especial para compartir juntas este momento único!"
   };
