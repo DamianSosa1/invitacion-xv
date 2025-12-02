@@ -29,11 +29,11 @@ export default function BirthdayInvitation() {
     name: "Agustina",
     date: "7 de marzo del 2026",
     time: "21:00 horas",
-    location: "Corrientes 1198, Rosario, Santa Fe",
+    location: "Av. Pellegrini 3135, S2002QDJ Rosario, Santa Fe",
     details: "¡Trae tu mejor sonrisa y ganas de bailar!",
     mercadoPago: "agustinaxv.cumple.mp",
     dressCode: "Formal - Elegante y sofisticado",
-    closingMessage: "¡Espero verte en este día tan especial para compartir juntas este momento único!"
+    closingMessage: "¡Espero verte en este día tan especial para compartir juntos este momento único!"
   };
 
   // Mock images for the carousel (in a real app, these would be actual image URLs)
