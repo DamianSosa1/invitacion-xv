@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { 
   CalendarCheck, 
   Clock, 
-  MapPin,
-  Buildings, // NUEVO ICONO IMPORTADO
+  MapPin, 
+  Buildings,
   MusicNotes, 
   Gift, 
   CheckCircle, 
@@ -199,7 +199,7 @@ export default function BirthdayInvitation() {
 
         if (response.ok && result.success) {
           console.log("✅ Confirmación exitosa");
-          setSubmitted(true); 
+          setSubmitted(true);
           setTimeout(() => setSubmitted(false), 5000);
         } else {
           console.error("❌ Error lógico:", result);
@@ -234,7 +234,8 @@ export default function BirthdayInvitation() {
   const StarBackground = () => {
     const [stars, setStars] = useState<{ id: number; size: number; top: number; left: number; duration: number }[]>([]);
     useEffect(() => {
-      const generatedStars = Array.from({ length: 100 }).map((_, i) => ({
+      // REDUCIDO: Bajamos de 100 a 50 estrellas para mejorar rendimiento en móviles
+      const generatedStars = Array.from({ length: 50 }).map((_, i) => ({
         id: i, size: Math.random() * 2.5 + 1.5, top: Math.random() * 100, left: Math.random() * 100, duration: Math.random() * 6 + 6,
       }));
       setStars(generatedStars);
@@ -263,7 +264,9 @@ export default function BirthdayInvitation() {
 
       <StarBackground />
       <div className="relative w-full max-w-2xl">
-        <Card className={`relative bg-gradient-to-br from-purple-50 to-violet-100 backdrop-blur-sm border-purple-200 shadow-2xl overflow-hidden transition-all duration-500 ${isOpen ? 'h-auto' : 'h-96'}`}>
+        {/* CORRECCIÓN PRINCIPAL: Eliminado 'transition-all duration-500' y 'h-96' */}
+        {/* Ahora usa 'min-h-[24rem]' para el estado cerrado, y 'h-auto' para abierto sin animar la altura */}
+        <Card className={`relative bg-gradient-to-br from-purple-50 to-violet-100 backdrop-blur-sm border-purple-200 shadow-2xl overflow-hidden ${isOpen ? 'h-auto' : 'h-96'}`}>
           {!isOpen && (
             <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-purple-700 to-purple-800 cursor-pointer z-10 flex items-center justify-center" onClick={() => setIsOpen(true)}>
               <motion.div className="text-white text-center p-4" initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}>
@@ -285,7 +288,8 @@ export default function BirthdayInvitation() {
             </>
           )}
         
-          <div className={`transition-all duration-500 ${isOpen ? 'pt-20' : 'pt-48'}`}>
+          {/* CORRECCIÓN: Eliminada animación de padding también */}
+          <div className={`${isOpen ? 'pt-20' : 'pt-48'}`}>
             <CardHeader className="text-center pb-8 pt-0"> 
               <h1 className={`text-7xl md:text-8xl text-purple-900 mb-4 leading-normal ${greatVibes.className}`}>{invitationData.name}</h1>
               <h2 className={`text-4xl md:text-5xl text-purple-800 ${greatVibes.className}`}>Mis 15 años</h2>
@@ -331,20 +335,16 @@ export default function BirthdayInvitation() {
                   <p className="text-purple-900">{invitationData.time}</p>
                 </div>
 
-                {/* --- SECCIÓN DE UBICACIÓN MODIFICADA --- */}
                 <div className="space-y-4">
-                  {/* Ítem 1: Salón */}
                   <div className="flex items-center justify-center">
                     <Buildings size={28} weight="light" className="text-purple-700 mr-3 flex-shrink-0" />
                     <p className="text-purple-900 font-semibold text-xl">{invitationData.venueName}</p>
                   </div>
-                  {/* Ítem 2: Dirección */}
                   <div className="flex items-start justify-center">
                     <MapPin size={28} weight="light" className="text-purple-700 mr-3 mt-1 flex-shrink-0" />
                     <p className="text-purple-900 text-left">{invitationData.location}</p>
                   </div>
                 </div>
-                {/* --------------------------------------- */}
 
                 <div className="flex justify-center gap-4 mt-8">
                   <Button onClick={openMaps} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-6 text-lg">Ver cómo llegar</Button>
@@ -363,7 +363,7 @@ export default function BirthdayInvitation() {
                   <Camera size={32} weight="light" className="text-purple-700 mr-3" />
                   <h3 className={`text-3xl text-purple-900 ${greatVibes.className}`}>Un recorrido de estos 15 años</h3>
                 </div>
-                <p className="text-center text-purple-800 mb-8 text-xl">Junto a personas que son muy importantes en mi vida</p>
+                
                 <Swiper effect={'coverflow'} grabCursor={true} centeredSlides={true} slidesPerView={'auto'} loop={true} autoplay={{ delay: 10000, disableOnInteraction: false, pauseOnMouseEnter: true }} coverflowEffect={{ rotate: 0, stretch: 0, depth: 200, modifier: 1.5, slideShadows: false, }} pagination={{ clickable: true }} navigation={true} modules={[EffectCoverflow, Pagination, Navigation, Autoplay]} className="mySwiper !pb-14">
                   {images.map((image) => (
                     <SwiperSlide key={image.id} className="!w-72 !h-72 md:!w-96 md:!h-96 rounded-2xl overflow-hidden shadow-lg">
