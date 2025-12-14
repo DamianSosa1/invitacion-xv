@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { 
   CalendarCheck, 
   Clock, 
-  MapPin, 
+  MapPin,
+  Buildings, // NUEVO ICONO IMPORTADO
   MusicNotes, 
   Gift, 
   CheckCircle, 
@@ -114,7 +115,7 @@ export default function BirthdayInvitation() {
   }, [targetDate, startDate]);
 
   const copyToClipboard = () => {
-    const text = `¡Estás invitada al XV de ${invitationData.name}!\n\nFecha: ${invitationData.date}\nHora: ${invitationData.time}\nLugar: ${invitationData.location} (${invitationData.venueName})\n\n${invitationData.details}`;
+    const text = `¡Estás invitada al XV de ${invitationData.name}!\n\nFecha: ${invitationData.date}\nHora: ${invitationData.time}\nLugar: ${invitationData.venueName} (${invitationData.location})\n\n${invitationData.details}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -198,8 +199,8 @@ export default function BirthdayInvitation() {
 
         if (response.ok && result.success) {
           console.log("✅ Confirmación exitosa");
-          setSubmitted(true); // Activa el modal
-          setTimeout(() => setSubmitted(false), 5000); // Lo oculta después de 5s
+          setSubmitted(true); 
+          setTimeout(() => setSubmitted(false), 5000);
         } else {
           console.error("❌ Error lógico:", result);
           alert(`Hubo un error: ${result.message || 'Desconocido'}`);
@@ -329,13 +330,22 @@ export default function BirthdayInvitation() {
                   <Clock size={28} weight="light" className="text-purple-700 mr-3" />
                   <p className="text-purple-900">{invitationData.time}</p>
                 </div>
-                <div className="flex items-start justify-center">
-                  <MapPin size={28} weight="light" className="text-purple-700 mr-3 mt-1 flex-shrink-0" />
-                  <div>
+
+                {/* --- SECCIÓN DE UBICACIÓN MODIFICADA --- */}
+                <div className="space-y-4">
+                  {/* Ítem 1: Salón */}
+                  <div className="flex items-center justify-center">
+                    <Buildings size={28} weight="light" className="text-purple-700 mr-3 flex-shrink-0" />
+                    <p className="text-purple-900 font-semibold text-xl">{invitationData.venueName}</p>
+                  </div>
+                  {/* Ítem 2: Dirección */}
+                  <div className="flex items-start justify-center">
+                    <MapPin size={28} weight="light" className="text-purple-700 mr-3 mt-1 flex-shrink-0" />
                     <p className="text-purple-900 text-left">{invitationData.location}</p>
-                    <p className="text-purple-800 text-left font-semibold italic mt-1">{invitationData.venueName}</p>
                   </div>
                 </div>
+                {/* --------------------------------------- */}
+
                 <div className="flex justify-center gap-4 mt-8">
                   <Button onClick={openMaps} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-6 text-lg">Ver cómo llegar</Button>
                   <Button onClick={copyToClipboard} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-6 text-lg">{copied ? "¡Copiado!" : "Copiar datos"}</Button>
@@ -511,7 +521,6 @@ export default function BirthdayInvitation() {
         </Card>
       </div>
 
-      {/* --- MODAL DE CONFIRMACIÓN MOVIDO AQUÍ PARA QUE NO SE CORTE --- */}
       {submitted && (
         <div className="fixed inset-0 flex items-center justify-center z-[9999] bg-black bg-opacity-60 backdrop-blur-sm p-4">
           <motion.div 
@@ -520,9 +529,7 @@ export default function BirthdayInvitation() {
             exit={{ scale: 0.8, opacity: 0 }}
             className="bg-white p-8 md:p-10 rounded-2xl shadow-2xl border-2 border-purple-200 max-w-sm w-full mx-auto relative overflow-hidden"
           >
-            {/* Fondo decorativo sutil */}
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-400 to-purple-600"></div>
-            
             <div className="text-center relative z-10">
               <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
                 <CheckCircle size={48} weight="fill" className="text-green-600" />
