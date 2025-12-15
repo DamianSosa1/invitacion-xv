@@ -130,7 +130,7 @@ export default function BirthdayInvitation() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const openMaps = () => window.open("https://www.google.com/maps/search/?api=1&query=Corrientes+1198,+Rosario,+Santa+Fe", "_blank");
+  const openMaps = () => window.open("https://www.google.com/maps/search/?api=1&query=Av.+Pellegrini+3135,+S2002QDJ+Rosario,+Santa+Fe", "_blank");
 
   const addPlaylistSuggestion = async () => {
     if (playlistSong.trim() && playlistLink.trim()) {
