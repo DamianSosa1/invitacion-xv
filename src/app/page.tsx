@@ -45,6 +45,14 @@ const playfair = Playfair_Display({
   display: 'swap',
 });
 
+// Interfaz para el tipo de asistente
+interface Attendee {
+  id: number; // ID único para mejorar rendimiento
+  name: string;
+  attendance: "si" | "no";
+  dietaryRestrictions: string;
+}
+
 export default function BirthdayInvitation() {
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -52,8 +60,9 @@ export default function BirthdayInvitation() {
   const [playlistLink, setPlaylistLink] = useState("");
   const [playlistSuggestions, setPlaylistSuggestions] = useState<{song: string, link: string}[]>([]);
   
-  const [attendees, setAttendees] = useState([
-    {name: "", attendance: "si" as "si" | "no", dietaryRestrictions: ""}
+  // OPTIMIZACIÓN 1: Inicializamos con un ID único
+  const [attendees, setAttendees] = useState<Attendee[]>([
+    {id: 1, name: "", attendance: "si", dietaryRestrictions: ""}
   ]);
   
   const [submitted, setSubmitted] = useState(false);
@@ -153,21 +162,24 @@ export default function BirthdayInvitation() {
     setPlaylistSuggestions(playlistSuggestions.filter((_, i) => i !== index));
   };
 
+  // OPTIMIZACIÓN 2: Usamos Date.now() para generar IDs únicos instantáneos
   const addAttendee = () => {
-    setAttendees([...attendees, {name: "", attendance: "si", dietaryRestrictions: ""}]);
+    setAttendees(prev => [
+      ...prev, 
+      { id: Date.now(), name: "", attendance: "si", dietaryRestrictions: "" }
+    ]);
   };
 
-  const updateAttendee = (index: number, field: string, value: string) => {
-    const updated = [...attendees];
-    if (field === "name") updated[index].name = value;
-    if (field === "attendance") updated[index].attendance = value as "si" | "no";
-    if (field === "dietaryRestrictions") updated[index].dietaryRestrictions = value;
-    setAttendees(updated);
+  // OPTIMIZACIÓN 3: Actualización por ID, no por índice (mucho más rápido)
+  const updateAttendee = (id: number, field: keyof Attendee, value: string) => {
+    setAttendees(prev => prev.map(att => 
+      att.id === id ? { ...att, [field]: value } : att
+    ));
   };
 
-  const removeAttendee = (index: number) => {
+  const removeAttendee = (id: number) => {
     if (attendees.length > 1) {
-      setAttendees(attendees.filter((_, i) => i !== index));
+      setAttendees(prev => prev.filter(att => att.id !== id));
     }
   };
 
@@ -234,7 +246,6 @@ export default function BirthdayInvitation() {
   const center = 400; const svgViewBox = "0 0 800 800"; const radiusTime = 290; const circumference = 2 * Math.PI * radiusTime; const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
-    // 1. FONDO OPTIMIZADO (Sin StarBackground, solo degradado CSS)
     <div className={`relative min-h-screen bg-gradient-to-br from-[#7F00FF] to-purple-900 flex items-center justify-center p-4 overflow-hidden ${playfair.className}`}>
       
       <style jsx global>{`
@@ -245,10 +256,9 @@ export default function BirthdayInvitation() {
         .swiper { padding-top: 20px; padding-bottom: 40px; }
       `}</style>
 
-      {/* Eliminado <StarBackground /> para mejor rendimiento */}
-
       <div className="relative w-full max-w-2xl">
-        <Card className={`relative bg-gradient-to-br from-purple-50 to-violet-100 backdrop-blur-sm border-purple-200 shadow-2xl overflow-hidden ${isOpen ? 'h-auto' : 'h-96'}`}>
+        {/* OPTIMIZACIÓN 4: Eliminamos 'backdrop-blur' que es muy pesado para la GPU móvil */}
+        <Card className={`relative bg-gradient-to-br from-purple-50 to-violet-100 border-purple-200 shadow-xl overflow-hidden ${isOpen ? 'h-auto' : 'h-96'}`}>
           {!isOpen && (
             <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-purple-700 to-purple-800 cursor-pointer z-10 flex items-center justify-center" onClick={() => setIsOpen(true)}>
               <motion.div className="text-white text-center p-4" initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}>
@@ -414,39 +424,58 @@ export default function BirthdayInvitation() {
                   <h3 className={`text-3xl text-purple-900 ${greatVibes.className}`}>Confirmar asistencia</h3>
                 </div>
                 <div className="space-y-6">
-                  {attendees.map((attendee, index) => (
-                    <div key={index} className="bg-purple-50 p-6 rounded-xl border border-purple-100 mb-6 shadow-sm">
+                  {/* OPTIMIZACIÓN 5: Usar ID como KEY (Fundamental para que no se tilde) */}
+                  {attendees.map((attendee) => (
+                    <div key={attendee.id} className="bg-purple-50 p-6 rounded-xl border border-purple-100 mb-6 shadow-sm">
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
                         <div className="md:col-span-6">
-                          <Label htmlFor={`name-${index}`} className="text-purple-900 text-lg">Nombre completo</Label>
-                          <Input id={`name-${index}`} value={attendee.name} onChange={(e) => updateAttendee(index, "name", e.target.value)} placeholder="Nombre completo" className="mt-2 border-purple-300 text-lg p-6 bg-white" />
+                          <Label htmlFor={`name-${attendee.id}`} className="text-purple-900 text-lg">Nombre completo</Label>
+                          <Input 
+                            id={`name-${attendee.id}`} 
+                            value={attendee.name} 
+                            onChange={(e) => updateAttendee(attendee.id, "name", e.target.value)} 
+                            placeholder="Nombre completo" 
+                            className="mt-2 border-purple-300 text-lg p-6 bg-white" 
+                          />
                         </div>
                         <div className="md:col-span-4">
                           <Label className="text-purple-900 text-lg">¿Asistirá?</Label>
                           <div className="flex gap-6 mt-3">
                             <label className="flex items-center text-purple-900 text-lg cursor-pointer">
-                              <input type="radio" name={`attendance-${index}`} checked={attendee.attendance === "si"} onChange={() => updateAttendee(index, "attendance", "si")} className="mr-2 w-5 h-5 accent-purple-600" /> Sí
+                              <input 
+                                type="radio" 
+                                name={`attendance-${attendee.id}`} 
+                                checked={attendee.attendance === "si"} 
+                                onChange={() => updateAttendee(attendee.id, "attendance", "si")} 
+                                className="mr-2 w-5 h-5 accent-purple-600" 
+                              /> Sí
                             </label>
                             <label className="flex items-center text-purple-900 text-lg cursor-pointer">
-                              <input type="radio" name={`attendance-${index}`} checked={attendee.attendance === "no"} onChange={() => updateAttendee(index, "attendance", "no")} className="mr-2 w-5 h-5 accent-purple-600" /> No
+                              <input 
+                                type="radio" 
+                                name={`attendance-${attendee.id}`} 
+                                checked={attendee.attendance === "no"} 
+                                onChange={() => updateAttendee(attendee.id, "attendance", "no")} 
+                                className="mr-2 w-5 h-5 accent-purple-600" 
+                              /> No
                             </label>
                           </div>
                         </div>
                         <div className="md:col-span-2 flex justify-end md:mt-8">
                           {attendees.length > 1 && (
-                            <Button variant="ghost" onClick={() => removeAttendee(index)} className="text-red-500 hover:text-red-700 p-4"><Trash size={24} weight="light" /></Button>
+                            <Button variant="ghost" onClick={() => removeAttendee(attendee.id)} className="text-red-500 hover:text-red-700 p-4"><Trash size={24} weight="light" /></Button>
                           )}
                         </div>
                       </div>
                       
                       <div className="mt-6">
-                        <Label htmlFor={`diet-${index}`} className="text-purple-900 text-lg flex items-center mb-2">
+                        <Label htmlFor={`diet-${attendee.id}`} className="text-purple-900 text-lg flex items-center mb-2">
                           <ForkKnife size={24} weight="light" className="mr-2 text-purple-600" /> Restricciones alimentarias (Opcional)
                         </Label>
                         <Input 
-                          id={`diet-${index}`} 
+                          id={`diet-${attendee.id}`} 
                           value={attendee.dietaryRestrictions} 
-                          onChange={(e) => updateAttendee(index, "dietaryRestrictions", e.target.value)} 
+                          onChange={(e) => updateAttendee(attendee.id, "dietaryRestrictions", e.target.value)} 
                           placeholder="Ej: Soy vegetariano, celíaco, alérgico a..." 
                           className="mt-2 border-purple-300 text-lg p-6 bg-white placeholder:text-gray-400" 
                         />
@@ -455,7 +484,7 @@ export default function BirthdayInvitation() {
                   ))}
                   
                   <div className="flex flex-col gap-4">
-                    {/* 2. CORRECCIÓN: Botón "Agregar" con z-index alto, relative y type="button" */}
+                    {/* BOTÓN ARREGLADO: type="button" y z-index alto */}
                     <Button 
                       onClick={addAttendee} 
                       type="button" 
