@@ -199,7 +199,7 @@ export default function BirthdayInvitation() {
 
         if (response.ok && result.success) {
           console.log("✅ Confirmación exitosa");
-          setSubmitted(true);
+          setSubmitted(true); 
           setTimeout(() => setSubmitted(false), 5000);
         } else {
           console.error("❌ Error lógico:", result);
@@ -231,28 +231,11 @@ export default function BirthdayInvitation() {
     </div>
   );
 
-  const StarBackground = () => {
-    const [stars, setStars] = useState<{ id: number; size: number; top: number; left: number; duration: number }[]>([]);
-    useEffect(() => {
-      // REDUCIDO: Bajamos de 100 a 50 estrellas para mejorar rendimiento en móviles
-      const generatedStars = Array.from({ length: 50 }).map((_, i) => ({
-        id: i, size: Math.random() * 2.5 + 1.5, top: Math.random() * 100, left: Math.random() * 100, duration: Math.random() * 6 + 6,
-      }));
-      setStars(generatedStars);
-    }, []);
-    return (
-      <div className="absolute inset-0 overflow-hidden z-0">
-        {stars.map((star) => (
-          <motion.span key={star.id} className="absolute bg-white rounded-full shadow-md" style={{ width: `${star.size}px`, height: `${star.size}px`, top: `${star.top}%`, left: `${star.left}%`, opacity: 0.9, filter: "blur(0.5px)" }} animate={{ opacity: [0.5, 1, 0.5], y: [0, -2, 2, 0] }} transition={{ duration: star.duration, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }} />
-        ))}
-      </div>
-    );
-  };
-
   const center = 400; const svgViewBox = "0 0 800 800"; const radiusTime = 290; const circumference = 2 * Math.PI * radiusTime; const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className={`relative min-h-screen bg-[#7F00FF] flex items-center justify-center p-4 overflow-hidden ${playfair.className}`}>
+    // 1. FONDO OPTIMIZADO (Sin StarBackground, solo degradado CSS)
+    <div className={`relative min-h-screen bg-gradient-to-br from-[#7F00FF] to-purple-900 flex items-center justify-center p-4 overflow-hidden ${playfair.className}`}>
       
       <style jsx global>{`
         .swiper-button-next, .swiper-button-prev { color: #7e22ce !important; background-color: rgba(255, 255, 255, 0.65); width: 40px; height: 40px; border-radius: 12px; backdrop-filter: blur(4px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; }
@@ -262,10 +245,9 @@ export default function BirthdayInvitation() {
         .swiper { padding-top: 20px; padding-bottom: 40px; }
       `}</style>
 
-      <StarBackground />
+      {/* Eliminado <StarBackground /> para mejor rendimiento */}
+
       <div className="relative w-full max-w-2xl">
-        {/* CORRECCIÓN PRINCIPAL: Eliminado 'transition-all duration-500' y 'h-96' */}
-        {/* Ahora usa 'min-h-[24rem]' para el estado cerrado, y 'h-auto' para abierto sin animar la altura */}
         <Card className={`relative bg-gradient-to-br from-purple-50 to-violet-100 backdrop-blur-sm border-purple-200 shadow-2xl overflow-hidden ${isOpen ? 'h-auto' : 'h-96'}`}>
           {!isOpen && (
             <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-purple-700 to-purple-800 cursor-pointer z-10 flex items-center justify-center" onClick={() => setIsOpen(true)}>
@@ -288,8 +270,7 @@ export default function BirthdayInvitation() {
             </>
           )}
         
-          {/* CORRECCIÓN: Eliminada animación de padding también */}
-          <div className={`${isOpen ? 'pt-20' : 'pt-48'}`}>
+          <div className={`transition-all duration-500 ${isOpen ? 'pt-20' : 'pt-48'}`}>
             <CardHeader className="text-center pb-8 pt-0"> 
               <h1 className={`text-7xl md:text-8xl text-purple-900 mb-4 leading-normal ${greatVibes.className}`}>{invitationData.name}</h1>
               <h2 className={`text-4xl md:text-5xl text-purple-800 ${greatVibes.className}`}>Mis 15 años</h2>
@@ -474,10 +455,17 @@ export default function BirthdayInvitation() {
                   ))}
                   
                   <div className="flex flex-col gap-4">
-                    <Button onClick={addAttendee} variant="outline" className="w-full border-purple-300 text-purple-700 hover:bg-purple-50 text-lg py-6">
+                    {/* 2. CORRECCIÓN: Botón "Agregar" con z-index alto, relative y type="button" */}
+                    <Button 
+                      onClick={addAttendee} 
+                      type="button" 
+                      variant="outline" 
+                      className="w-full border-purple-300 text-purple-700 hover:bg-purple-50 text-lg py-6 relative z-20 cursor-pointer active:scale-95 transition-transform"
+                    >
                       <Plus size={20} weight="light" className="mr-2" /> Agregar otra persona
                     </Button>
-                    <Button onClick={confirmAttendance} className="w-full bg-purple-600 hover:bg-purple-700 text-white text-lg py-6" disabled={attendees.every(attendee => !attendee.name.trim())}>
+                    
+                    <Button onClick={confirmAttendance} className="w-full bg-purple-600 hover:bg-purple-700 text-white text-lg py-6 relative z-20" disabled={attendees.every(attendee => !attendee.name.trim())}>
                       Confirmar asistencia
                     </Button>
                   </div>
